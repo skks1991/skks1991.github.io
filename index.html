@@ -52,10 +52,16 @@
             font-size: 16px;
         }
         @media (max-width: 700px){
-          form {
+          .div1 {
             display: block;
-            width: 100%;
+            width: 48%;
             margin: 0 auto;
+          }
+          .input_uname .input_pass{
+            width: 100%;
+          }
+          #logButton{
+            width: 110%;
           }
         }
     </style>
@@ -64,12 +70,12 @@
     <div class="div1">
         <form name="myForm" method="post">
             <label>UserName</label>
-            <input type="text" name="Uname" class="inputText" placeholder="User Name">
+            <input class="input_uname" type="text" name="Uname" class="inputText" placeholder="User Name">
             <br><br>
             <label>Password</label>
-            <input type="password" name="Pass" class="inputText" placeholder="Password">
+            <input class="input_pass" type="password" name="Pass" class="inputText" placeholder="Password">
             <br><br>
-            <input type="button" name="log" id="logButton" value="Login" onclick="myFunction()">
+            <input class="input_btn" type="button" name="log" id="logButton" value="Login" onclick="myFunction()">
             <br><br>
         </form>
     </div>
