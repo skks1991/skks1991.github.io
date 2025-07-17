@@ -1,123 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Micro‑Finance App</title>
+  <meta charset="UTF‑8">
+  <meta name="viewport" content="width=device‑width, initial‑scale=1.0">
+  <title>Micro‑Finance Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100">
-  <div class="max-w-7xl mx-auto p-4">
-    <h1 class="text-3xl font-bold mb-4">Micro‑Finance Dashboard</h1>
-    <label>Select Member:
-      <select id="memberSelect" class="border p-2 rounded">
-        ${Array.from({length:10}, (_,i)=>`<option value="${i+1}">Member ${i+1}</option>`).join('')}
-      </select>
-    </label>
-
-    <div class="overflow-x-auto mt-4">
-      <table class="min-w-full bg-white shadow rounded">
-        <thead>
-          <tr class="bg-blue-500 text-white">
-            ${["month","savings","profit","withdraw","total","loan","instalment","instalment_no","instalment_due","receive_date","receiver","message","actions"].map(h=>`<th class="p-2">${h.replace('_',' ')}</th>`).join('')}
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </div>
-
-    <div id="formContainer" class="mt-4 bg-white shadow rounded p-4 hidden">
-      <h2 class="text-xl font-semibold mb-2">Record</h2>
-      <form id="recordForm" class="grid grid-cols-2 gap-4">
-        ${["id","month","savings","profit","withdraw","total","loan","instalment","instalment_no","instalment_due","receive_date","receiver","message"].map(f=>`
-        <div class="col-span-1">
-          <label class="block font-medium">${f.replace('_',' ')}</label>
-          <input name="${f}" id="field_${f}" class="w-full border p-2 rounded"/>
-        </div>`).join('')}
-        <div class="col-span-2 flex justify-end space-x-2">
-          <button type="button" id="createBtn" class="bg-green-500 text-white px-4 py-2 rounded">Create</button>
-          <button type="button" id="updateBtn" class="bg-yellow-500 text-white px-4 py-2 rounded hidden">Update</button>
-          <button type="button" id="cancelBtn" class="bg-gray-400 text-white px-4 py-2 rounded hidden">Cancel</button>
-        </div>
-      </form>
-    </div>
+<body class="bg-gray-100 p-4">
+  <h1 class="text-2xl font-bold mb-4">Micro‑Finance Dashboard</h1>
+  <div class="mb-4">
+    <label class="block mb-1">Select Member:</label>
+    <select id="memberSelect" class="border p-2 rounded">
+      <option disabled selected>— Choose —</option>
+      <script>
+        for(let i=1;i<=10;i++){
+          document.write(`<option value="Member${i}">Member ${i}</option>`);
+        }
+      </script>
+    </select>
   </div>
 
+  <div id="tableContainer"></div>
+
   <script>
-    const API_URL = '<<https://script.google.com/macros/s/AKfycbzOrvXr1L0cyhPgtcLzxicR7H0c4Zm8xbZGH04p6_H0tAegJ-ddlgOT4XP98sYVUVEjKw/exec>>';
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx38W2nHLfcFgTKDrODF7dA_hd9GzsrLPMvkQSBtOviz6lT3MHNrG9AeOZ7pIrOC9Ri/exec';
+
     const memberSelect = document.getElementById('memberSelect');
-    const tableBody = document.getElementById('tableBody');
-    const formC = document.getElementById('formContainer');
-    const form = document.getElementById('recordForm');
-    const createBtn = document.getElementById('createBtn');
-    const updateBtn = document.getElementById('updateBtn');
-    const cancelBtn = document.getElementById('cancelBtn');
-    let editingId = null;
+    const tableContainer = document.getElementById('tableContainer');
+    let currentMember = null;
+    let currentData = [];
 
-    memberSelect.addEventListener('change', fetchAndRender);
-    createBtn.addEventListener('click', () => submitForm('create'));
-    updateBtn.addEventListener('click', () => submitForm('update'));
-    cancelBtn.addEventListener('click', () => resetForm());
+    memberSelect.addEventListener('change', async () => {
+      currentMember = memberSelect.value;
+      await fetchData();
+      renderTable();
+    });
 
-    async function api(action, data={}) {
-      const params = new URLSearchParams({action, member: memberSelect.value});
-      Object.entries(data).forEach(([k,v])=> params.append(k,v || ''));
-      const res = await fetch(API_URL, {method:'POST', body: params});
-      return res.json();
-    }
-
-    function fetchAndRender(){
-      resetForm();
-      api('read').then(data => {
-        tableBody.innerHTML = data.map(r => `
-          <tr class="border-b">
-            ${["month","savings","profit","withdraw","total","loan","instalment","instalment_no","instalment_due","receive_date","receiver","message"].map(f=>`<td class="p-2">${r[f]||''}</td>`).join('')}
-            <td class="p-2 space-x-1">
-              <button class="bg-blue-500 text-white px-2 py-1 rounded" onclick="edit('${r.id}')">Edit</button>
-              <button class="bg-red-500 text-white px-2 py-1 rounded" onclick="del('${r.id}')">Delete</button>
-            </td>
-          </tr>`).join('');
+    async function fetchData(){
+      const params = new URLSearchParams({
+        action:'read',
+        member: currentMember
       });
+      const res = await fetch(WEB_APP_URL, { method:'POST', body: params });
+      currentData = await res.json();
     }
 
-    function edit(id) {
-      api('read').then(data => {
-        const row = data.find(r => r.id == id);
-        if (!row) return;
-        editingId = id;
-        Object.keys(row).forEach(f => {
-          const fld = document.getElementById('field_'+f);
-          if (fld) fld.value = row[f];
-        });
-        formC.classList.remove('hidden');
-        createBtn.classList.add('hidden');
-        updateBtn.classList.remove('hidden');
-        cancelBtn.classList.remove('hidden');
+    function renderTable(){
+      const html = `
+        <button id="addBtn" class="mb-2 px-4 py-2 bg-green-500 text-white rounded">+ Add Entry</button>
+        <table class="min-w-full bg-white shadow rounded">
+          <thead class="bg-gray-200">
+            <tr>${['Month','Savings','Profit','Withdraw','Total','Loan','Instalment','Instalment No.','Instalment Due','Receive Date','Receiver','Message','Actions']
+            .map(h=>`<th class="border px-2 py-1">${h}</th>`).join('')}</tr>
+          </thead>
+          <tbody>
+            ${currentData.map(row=>`
+              <tr class="odd:bg-gray-50">
+                ${['month','savings','profit','withdraw','total','loan','instalment','instalment_no','instalment_due','receive_date','receiver','message']
+                .map(col=>`<td class="border px-2 py-1">${row[col]||''}</td>`).join('')}
+                <td class="border px-2 py-1 space-x-2">
+                  <button data-id="${row.id}" class="editBtn text-blue-600">Edit</button>
+                  <button data-id="${row.id}" class="delBtn text-red-600">Delete</button>
+                </td>
+              </tr>`).join('') || `<tr><td colspan="13" class="p-4 text-center">No entries yet.</td></tr>`}
+          </tbody>
+        </table>
+        <div id="formModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+          <form id="entryForm" class="bg-white p-4 rounded shadow-lg space-y-2">
+            ${['month','savings','profit','withdraw','total','loan','instalment','instalment_no','instalment_due','receive_date','receiver','message']
+            .map(col=>`
+              <div>
+                <label class="block">${col.replace('_',' ')}:</label>
+                <input name="${col}" class="border p-1 rounded w-full"/>
+              </div>`).join('')}
+            <input type="hidden" name="id"/>
+            <div class="text-right space-x-2">
+              <button type="button" id="cancelBtn" class="px-3 py-1">Cancel</button>
+              <button type="submit" class="px-3 py-1 bg-blue-500 text-white rounded">Save</button>
+            </div>
+          </form>
+        </div>`;
+      tableContainer.innerHTML = html;
+
+      document.getElementById('addBtn').onclick = () => openForm();
+      document.getElementById('cancelBtn').onclick = () => closeForm();
+
+      document.querySelectorAll('.editBtn').forEach(b=>{
+        b.onclick = ()=> openForm(currentData.find(r=>r.id===b.dataset.id));
       });
+      document.querySelectorAll('.delBtn').forEach(b=>{
+        b.onclick = ()=> deleteEntry(b.dataset.id));
+      });
+
+      document.getElementById('entryForm').onsubmit = async e=>{
+        e.preventDefault();
+        const form = e.target;
+        const data = new FormData(form);
+        const params = new URLSearchParams(data);
+        params.append('action', form.id.value ? 'update' : 'create');
+        params.append('member', currentMember);
+        const res = await fetch(WEB_APP_URL, { method:'POST', body: params });
+        const json = await res.json();
+        if(json.error) return alert(json.error);
+        closeForm();
+        await fetchData();
+        renderTable();
+      };
     }
 
-    function del(id) {
-      if (!confirm('Delete record?')) return;
-      api('delete',{id}).then(fetchAndRender);
+    function openForm(data={}) {
+      const form = document.getElementById('entryForm');
+      Object.keys(data).forEach(k=>{
+        const el = form.querySelector(`[name=${k}]`);
+        if(el) el.value = data[k];
+      });
+      document.getElementById('formModal').classList.remove('hidden');
+    }
+    function closeForm(){
+      document.getElementById('entryForm').reset();
+      document.getElementById('formModal').classList.add('hidden');
     }
 
-    function resetForm() {
-      editingId = null;
-      form.reset();
-      formC.classList.add('hidden');
-      createBtn.classList.remove('hidden');
-      updateBtn.classList.add('hidden');
-      cancelBtn.classList.add('hidden');
+    async function deleteEntry(id){
+      if(!confirm('Delete this entry?')) return;
+      const params = new URLSearchParams({action:'delete',member:currentMember,id});
+      const res = await fetch(WEB_APP_URL, { method:'POST', body: params });
+      const json = await res.json();
+      if(json.error) return alert(json.error);
+      await fetchData();
+      renderTable();
     }
-
-    function submitForm(action) {
-      const data = {};
-      new FormData(form).forEach((v,k) => data[k] = v);
-      api(action, data).then(fetchAndRender);
-    }
-
-    // auto-load
-    fetchAndRender();
   </script>
 </body>
 </html>
