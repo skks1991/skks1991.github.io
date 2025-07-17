@@ -1,84 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Micro-Finance Dashboard</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Micro‑Finance App</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 p-4">
+<body class="bg-gray-100">
+  <div class="max-w-7xl mx-auto p-4">
+    <h1 class="text-3xl font-bold mb-4">Micro‑Finance Dashboard</h1>
+    <label>Select Member:
+      <select id="memberSelect" class="border p-2 rounded">
+        ${Array.from({length:10}, (_,i)=>`<option value="${i+1}">Member ${i+1}</option>`).join('')}
+      </select>
+    </label>
 
-  <h1 class="text-2xl font-bold text-center mb-6">Micro-Finance Dashboard</h1>
+    <div class="overflow-x-auto mt-4">
+      <table class="min-w-full bg-white shadow rounded">
+        <thead>
+          <tr class="bg-blue-500 text-white">
+            ${["month","savings","profit","withdraw","total","loan","instalment","instalment_no","instalment_due","receive_date","receiver","message","actions"].map(h=>`<th class="p-2">${h.replace('_',' ')}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
 
-  <div class="mb-4">
-    <label for="member" class="block font-medium">Select Member:</label>
-    <select id="member" class="border rounded p-2 w-full md:w-1/2">
-      <option value="">--Select--</option>
-      <script>
-        for (let i = 1; i <= 10; i++) {
-          document.write(`<option value="Member${i}">Member ${i}</option>`);
-        }
-      </script>
-    </select>
-  </div>
-
-  <div class="overflow-x-auto">
-    <table class="min-w-full bg-white shadow rounded">
-      <thead class="bg-gray-200">
-        <tr id="table-head"></tr>
-      </thead>
-      <tbody id="table-body"></tbody>
-    </table>
+    <div id="formContainer" class="mt-4 bg-white shadow rounded p-4 hidden">
+      <h2 class="text-xl font-semibold mb-2">Record</h2>
+      <form id="recordForm" class="grid grid-cols-2 gap-4">
+        ${["id","month","savings","profit","withdraw","total","loan","instalment","instalment_no","instalment_due","receive_date","receiver","message"].map(f=>`
+        <div class="col-span-1">
+          <label class="block font-medium">${f.replace('_',' ')}</label>
+          <input name="${f}" id="field_${f}" class="w-full border p-2 rounded"/>
+        </div>`).join('')}
+        <div class="col-span-2 flex justify-end space-x-2">
+          <button type="button" id="createBtn" class="bg-green-500 text-white px-4 py-2 rounded">Create</button>
+          <button type="button" id="updateBtn" class="bg-yellow-500 text-white px-4 py-2 rounded hidden">Update</button>
+          <button type="button" id="cancelBtn" class="bg-gray-400 text-white px-4 py-2 rounded hidden">Cancel</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script>
-    const apiUrl = "https://script.google.com/macros/s/AKfycbyDp4q6FSK31XVhNXbg9ItQjEMoS6IVrqyXQ4lSIm35H5uavi1r15z7MMBxGSam8oYREg/exec"; // Replace with your actual Apps Script URL
+    const API_URL = '<<https://script.google.com/macros/s/AKfycbzOrvXr1L0cyhPgtcLzxicR7H0c4Zm8xbZGH04p6_H0tAegJ-ddlgOT4XP98sYVUVEjKw/exec>>';
+    const memberSelect = document.getElementById('memberSelect');
+    const tableBody = document.getElementById('tableBody');
+    const formC = document.getElementById('formContainer');
+    const form = document.getElementById('recordForm');
+    const createBtn = document.getElementById('createBtn');
+    const updateBtn = document.getElementById('updateBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    let editingId = null;
 
-    const headers = [
-      "month", "savings", "profit", "withdraw", "total",
-      "loan", "instalment", "instalment_no", "instalment_due",
-      "receive_date", "receiver", "message", "id"
-    ];
+    memberSelect.addEventListener('change', fetchAndRender);
+    createBtn.addEventListener('click', () => submitForm('create'));
+    updateBtn.addEventListener('click', () => submitForm('update'));
+    cancelBtn.addEventListener('click', () => resetForm());
 
-    document.getElementById('table-head').innerHTML = headers.map(h => `<th class="p-2 text-sm text-left">${h.replace('_', ' ').toUpperCase()}</th>`).join('') + '<th class="p-2 text-sm">Actions</th>';
-
-    document.getElementById('member').addEventListener('change', async function () {
-      const member = this.value;
-      if (!member) return;
-
-      const res = await fetch(`${apiUrl}?action=read&member=${member}`);
-      const data = await res.json();
-
-      const tbody = document.getElementById('table-body');
-      tbody.innerHTML = '';
-
-      data.forEach(row => {
-        const tr = document.createElement('tr');
-        tr.classList.add('border-b');
-
-        tr.innerHTML = headers.map(h => `<td class="p-2 text-sm">${row[h] || ''}</td>`).join('') +
-          `<td class="p-2 text-sm">
-            <button onclick='editRecord(${JSON.stringify(row)})' class="text-blue-500">Edit</button>
-            <button onclick='deleteRecord("${member}", "${row.id}")' class="text-red-500 ml-2">Delete</button>
-          </td>`;
-
-        tbody.appendChild(tr);
-      });
-    });
-
-    async function deleteRecord(member, id) {
-      const res = await fetch(apiUrl, {
-        method: "POST",
-        body: JSON.stringify({ action: "delete", member, id })
-      });
-      alert("Deleted successfully!");
-      document.getElementById('member').dispatchEvent(new Event('change'));
+    async function api(action, data={}) {
+      const params = new URLSearchParams({action, member: memberSelect.value});
+      Object.entries(data).forEach(([k,v])=> params.append(k,v || ''));
+      const res = await fetch(API_URL, {method:'POST', body: params});
+      return res.json();
     }
 
-    function editRecord(data) {
-      alert("Implement edit modal for: " + data.id);
-      // You can create a form/modal and call update
+    function fetchAndRender(){
+      resetForm();
+      api('read').then(data => {
+        tableBody.innerHTML = data.map(r => `
+          <tr class="border-b">
+            ${["month","savings","profit","withdraw","total","loan","instalment","instalment_no","instalment_due","receive_date","receiver","message"].map(f=>`<td class="p-2">${r[f]||''}</td>`).join('')}
+            <td class="p-2 space-x-1">
+              <button class="bg-blue-500 text-white px-2 py-1 rounded" onclick="edit('${r.id}')">Edit</button>
+              <button class="bg-red-500 text-white px-2 py-1 rounded" onclick="del('${r.id}')">Delete</button>
+            </td>
+          </tr>`).join('');
+      });
     }
+
+    function edit(id) {
+      api('read').then(data => {
+        const row = data.find(r => r.id == id);
+        if (!row) return;
+        editingId = id;
+        Object.keys(row).forEach(f => {
+          const fld = document.getElementById('field_'+f);
+          if (fld) fld.value = row[f];
+        });
+        formC.classList.remove('hidden');
+        createBtn.classList.add('hidden');
+        updateBtn.classList.remove('hidden');
+        cancelBtn.classList.remove('hidden');
+      });
+    }
+
+    function del(id) {
+      if (!confirm('Delete record?')) return;
+      api('delete',{id}).then(fetchAndRender);
+    }
+
+    function resetForm() {
+      editingId = null;
+      form.reset();
+      formC.classList.add('hidden');
+      createBtn.classList.remove('hidden');
+      updateBtn.classList.add('hidden');
+      cancelBtn.classList.add('hidden');
+    }
+
+    function submitForm(action) {
+      const data = {};
+      new FormData(form).forEach((v,k) => data[k] = v);
+      api(action, data).then(fetchAndRender);
+    }
+
+    // auto-load
+    fetchAndRender();
   </script>
 </body>
 </html>
