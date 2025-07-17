@@ -1,40 +1,84 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <base target="_top">
-    <script src="https://cdn.tailwindcss.com"></script>
-  </head>
-  <body class="bg-gray-100 p-4">
-    <div class="max-w-6xl mx-auto">
-      <h1 class="text-3xl font-bold mb-6 text-center">📊 Micro-Finance Dashboard</h1>
-      
-      <div>
-        <label for="member" class="block text-lg font-semibold">Select Member:</label>
-        <select id="member" class="p-2 rounded border mb-4"></select>
-      </div>
-      
-      <div id="table-container" class="overflow-x-auto bg-white shadow rounded p-4"></div>
-      
-      <button onclick="showAddForm()" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded">➕ Add Entry</button>
-    </div>
-    
-    <div id="form-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-      <div class="bg-white p-6 rounded w-full max-w-xl space-y-4">
-        <h2 class="text-xl font-bold" id="form-title">Add Record</h2>
-        <form id="entry-form" class="grid grid-cols-2 gap-2"></form>
-        <div class="text-right">
-          <button onclick="submitForm()" class="bg-green-600 text-white px-4 py-2 rounded">Save</button>
-          <button onclick="closeForm()" class="ml-2 bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
-        </div>
-      </div>
-    </div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Micro-Finance Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
 
-    <script>
-      const headers = ['month','savings','profit','withdraw','total','loan','instalment','instalment_no','instalment_due','receive_date','receiver','message','id'];
-    </script>
+  <h1 class="text-2xl font-bold text-center mb-6">Micro-Finance Dashboard</h1>
 
-    <script>
-      <?= include('script.js'); ?>
-    </script>
-  </body>
+  <div class="mb-4">
+    <label for="member" class="block font-medium">Select Member:</label>
+    <select id="member" class="border rounded p-2 w-full md:w-1/2">
+      <option value="">--Select--</option>
+      <script>
+        for (let i = 1; i <= 10; i++) {
+          document.write(`<option value="Member${i}">Member ${i}</option>`);
+        }
+      </script>
+    </select>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full bg-white shadow rounded">
+      <thead class="bg-gray-200">
+        <tr id="table-head"></tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+  </div>
+
+  <script>
+    const apiUrl = "https://script.google.com/macros/s/AKfycbyDp4q6FSK31XVhNXbg9ItQjEMoS6IVrqyXQ4lSIm35H5uavi1r15z7MMBxGSam8oYREg/exec"; // Replace with your actual Apps Script URL
+
+    const headers = [
+      "month", "savings", "profit", "withdraw", "total",
+      "loan", "instalment", "instalment_no", "instalment_due",
+      "receive_date", "receiver", "message", "id"
+    ];
+
+    document.getElementById('table-head').innerHTML = headers.map(h => `<th class="p-2 text-sm text-left">${h.replace('_', ' ').toUpperCase()}</th>`).join('') + '<th class="p-2 text-sm">Actions</th>';
+
+    document.getElementById('member').addEventListener('change', async function () {
+      const member = this.value;
+      if (!member) return;
+
+      const res = await fetch(`${apiUrl}?action=read&member=${member}`);
+      const data = await res.json();
+
+      const tbody = document.getElementById('table-body');
+      tbody.innerHTML = '';
+
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.classList.add('border-b');
+
+        tr.innerHTML = headers.map(h => `<td class="p-2 text-sm">${row[h] || ''}</td>`).join('') +
+          `<td class="p-2 text-sm">
+            <button onclick='editRecord(${JSON.stringify(row)})' class="text-blue-500">Edit</button>
+            <button onclick='deleteRecord("${member}", "${row.id}")' class="text-red-500 ml-2">Delete</button>
+          </td>`;
+
+        tbody.appendChild(tr);
+      });
+    });
+
+    async function deleteRecord(member, id) {
+      const res = await fetch(apiUrl, {
+        method: "POST",
+        body: JSON.stringify({ action: "delete", member, id })
+      });
+      alert("Deleted successfully!");
+      document.getElementById('member').dispatchEvent(new Event('change'));
+    }
+
+    function editRecord(data) {
+      alert("Implement edit modal for: " + data.id);
+      // You can create a form/modal and call update
+    }
+  </script>
+</body>
 </html>
