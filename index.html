@@ -190,7 +190,7 @@
 
   <script>
     // 📦 Replace this with your deployed Apps Script URL:
-    const BASE_URL = "https://script.google.com/macros/s/AKfycbz169y3kgxPdx1W4-MRrKsBRedB5JuuREqkXHaxIZzx-RrLPE6g3T0D7HF7XQH-Y2bnnw/exec";
+    const BASE_URL = "https://script.google.com/macros/s/AKfycbymoDT70v9DrYb8XoFpHV0ItNwzgx92NNs6yPPE3g6Yq_yjKTWweqW1nUrukEx36mBQWg/exec";
 
     // Helpers & DOM
     const memberSelect = document.getElementById("memberSelect");
@@ -244,27 +244,34 @@
     }
 
     function renderRow(r) {
-      const tr = document.createElement("tr");
-      tr.className = "border-t hover:bg-yellow-100";
-      ["month","savings","profit","withdraw","total","loan","instalment","instalment_no","instalment_due","receive_date","receiver","message"].forEach(f => {
-        const td = document.createElement("td");
-        td.textContent =
-  f === "month"
-    ? new Date(r[f]).toLocaleString("en-US", { month: "long", year: "numeric" })
-    : f.includes("date")
-      ? new Date(r[f]).toLocaleDateString("en-GB")
-      : parseFloat(r[f] || 0).toFixed(f.includes("_date") ? 0 : 2);
+  const tr = document.createElement("tr");
+  tr.className = "border-t hover:bg-yellow-100";
 
-        tr.appendChild(td);
-      });
-      const actionTd = document.createElement("td");
-      const e = Object.assign({}, r);
-      const editBtn = btn("Edit", "text-blue-600 mr-2", ()=>startEdit(e));
-      const delBtn = btn("Delete","text-red-600", ()=>handleDelete(r.id));
-      actionTd.append(editBtn, delBtn);
-      tr.appendChild(actionTd);
-      return tr;
-    }
+  const intFields = ["instalment_no"]; // Add other integer-only fields here if needed
+
+  ["month","savings","profit","withdraw","total","loan","instalment","instalment_no","instalment_due","receive_date","receiver","message"].forEach(f => {
+    const td = document.createElement("td");
+    td.textContent =
+      f === "month"
+        ? new Date(r[f]).toLocaleString("en-US", { month: "long", year: "numeric" })
+        : f.includes("date")
+          ? new Date(r[f]).toLocaleDateString("en-GB")
+          : intFields.includes(f)
+            ? parseInt(r[f] || 0)
+            : parseFloat(r[f] || 0).toFixed(2);
+    tr.appendChild(td);
+  });
+
+  const actionTd = document.createElement("td");
+  const e = Object.assign({}, r);
+  const editBtn = btn("Edit", "text-blue-600 mr-2", ()=>startEdit(e));
+  const delBtn = btn("Delete","text-red-600", ()=>handleDelete(r.id));
+  actionTd.append(editBtn, delBtn);
+  tr.appendChild(actionTd);
+
+  return tr;
+}
+
 
     function btn(txt, cls, fn) {
       const b = document.createElement("button");
@@ -300,30 +307,59 @@ form.month.value = d.toLocaleString("en-US", { month: "long", year: "numeric" })
     }
 
     function calculateDerived() {
-      const s = +form.savings.value || 0;
-      const p = +form.profit.value || 0;
-      const w = +form.withdraw.value || 0;
-      const L = +form.loan.value || 0;
-      const I = +form.instalment.value || 0;
+  const s = +form.savings.value || 0;
+  const p = +form.profit.value || 0;
+  const w = +form.withdraw.value || 0;
+  const L = +form.loan.value || 0;
+  const I = +form.instalment.value || 0;
 
-      const rows = Array.from(table.querySelectorAll("tr"));
-      const totals = rows.map(r => +r.children[4].innerText);
-      const lastTotal = totals.length ? totals[totals.length-1] : 0;
-      total.value = (lastTotal + s + p - w).toFixed(2);
+  const rows = Array.from(table.querySelectorAll("tr"));
+  const totals = rows.map(r => +r.children[4].innerText);
+  const lastTotal = totals.length ? totals[totals.length - 1] : 0;
+  total.value = (lastTotal + s + p - w).toFixed(2);
 
-      let lastLoan = 0, count=0;
-      for (let i=rows.length-1;i>=0;i--){
-        const ln = +rows[i].children[5].innerText;
-        if (ln>0) { lastLoan = ln; break; }
-      }
-      for (let r of rows){
-        if (+r.children[5].innerText === lastLoan && lastLoan>0) break;
-        if (+r.children[5].innerText === 0 && +r.children[6].innerText>0) count++;
-      }
-      let instNo = L>0?1: I>0?count+1:0;
-      instalment_no.value = instNo;
-      instalment_due.value = ((L>0?L:lastLoan) - instNo*I).toFixed(2);
+  // Find last loan in table
+  let lastLoan = 0;
+  for (let i = rows.length - 1; i >= 0; i--) {
+    const ln = +rows[i].children[5].innerText;
+    if (ln > 0) {
+      lastLoan = ln;
+      break;
     }
+  }
+
+  // Find max loan from table
+  const maxPrevLoan = rows.reduce((max, r) => Math.max(max, +r.children[5].innerText || 0), 0);
+  const isNewLoan = L > 0 && L > maxPrevLoan;
+
+  let instNo = 0;
+
+if (isNewLoan) {
+  // New loan – instalments shouldn't start yet
+  instNo = 0;
+  instalment_due.value = "0.00";
+} else if (lastLoan > 0 && I > 0) {
+  // Count past instalments only if no new loan
+  let count = 0;
+  for (let r of rows) {
+    const loanVal = +r.children[5].innerText;
+    const instVal = +r.children[6].innerText;
+    if (loanVal === lastLoan && lastLoan > 0) break;
+    if (loanVal === 0 && instVal > 0) count++;
+  }
+  instNo = count + 1;
+  const due = lastLoan - instNo * I;
+  instalment_due.value = due < 0 ? "0.00" : due.toFixed(2);
+} else {
+  instNo = 0;
+  instalment_due.value = "0.00";
+}
+
+instalment_no.value = instNo;
+
+}
+
+
 
     async function handleSubmit(e) {
       e.preventDefault();
@@ -344,20 +380,26 @@ form.month.value = d.toLocaleString("en-US", { month: "long", year: "numeric" })
     }
 
     function calculateSummary(){
-      const rows = Array.from(table.querySelectorAll("tr")).reverse();
-      const last = rows[rows.length-1];
-      const lastTotal = last ? +last.children[4].innerText : 0;
-      lastTotalEl.value = lastTotal.toFixed(2);
+  const rows = Array.from(table.querySelectorAll("tr")).reverse();
+  const last = rows[rows.length-1];
+  const lastTotal = last ? +last.children[4].innerText : 0;
+  lastTotalEl.value = lastTotal.toFixed(2);
 
-      const lastLoanRow = rows.reverse().find(r=>+r.children[5].innerText>0);
-      const lastLoan = lastLoanRow? +lastLoanRow.children[5].innerText:0;
-      lastLoanEl.value = lastLoan.toFixed(2);
+  const lastLoanRow = rows.reverse().find(r => +r.children[5].innerText > 0);
+  const lastLoan = lastLoanRow ? +lastLoanRow.children[5].innerText : 0;
+  lastLoanEl.value = lastLoan.toFixed(2);
 
-      const set = rows.reverse().find(r=>+r.children[6].innerText>0);
-      const inst = set? +set.children[6].innerText:0;
-      const instNo = set? +set.children[7].innerText:0;
-      lastDueEl.value = (lastLoan - inst*instNo).toFixed(2);
-    }
+  const set = rows.reverse().find(r => +r.children[6].innerText > 0);
+  const inst = set ? +set.children[6].innerText : 0;
+  const instNo = set ? +set.children[7].innerText : 0;
+
+  if (lastLoan > 0 && inst > 0) {
+    lastDueEl.value = (lastLoan - inst * instNo).toFixed(2);
+  } else {
+    lastDueEl.value = "0.00";
+  }
+}
+
 
     // Attach events
     ["savings","profit","withdraw","loan","instalment"].forEach(f=>{
