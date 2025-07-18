@@ -37,56 +37,55 @@
     </div>
 
     <div class="relative">
-      <input type="number" name="savings" id="savings" placeholder=" "
+      <input type="number" step="0.01" name="savings" id="savings" value="500" placeholder=" "
         class="peer w-full border rounded-md px-3 pt-5 pb-2 bg-white text-gray-900 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
       <label for="savings"
         class="absolute left-3 top-2 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm peer-focus:text-blue-600">Savings</label>
     </div>
 
     <div class="relative">
-      <input type="number" name="profit" id="profit" placeholder=" "
-        class="peer w-full border rounded-md px-3 pt-5 pb-2 bg-white text-gray-900 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+      <input type="number" step="0.01" name="profit" id="profit" placeholder=" " disabled class="peer w-full border rounded-md px-3 pt-5 pb-2 bg-white text-gray-900 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
       <label for="profit"
         class="absolute left-3 top-2 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm peer-focus:text-blue-600">Profit</label>
     </div>
 
     <div class="relative">
-      <input type="number" name="withdraw" id="withdraw" placeholder=" "
+      <input type="number" step="0.01" name="withdraw" id="withdraw" placeholder=" "
         class="peer w-full border rounded-md px-3 pt-5 pb-2 bg-white text-gray-900 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
       <label for="withdraw"
         class="absolute left-3 top-2 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm peer-focus:text-blue-600">Withdraw</label>
     </div>
 
     <div class="relative">
-      <input type="number" id="total" readonly placeholder=" "
+      <input type="number" step="0.01" id="total" readonly placeholder=" "
         class="peer w-full border rounded-md px-3 pt-5 pb-2 bg-gray-100 text-gray-900 placeholder-transparent focus:outline-none" />
       <label for="total"
         class="absolute left-3 top-2 text-sm text-gray-500 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">Total</label>
     </div>
 
     <div class="relative">
-      <input type="number" name="loan" id="loan" placeholder=" "
+      <input type="number" step="0.01" name="loan" id="loan" placeholder=" "
         class="peer w-full border rounded-md px-3 pt-5 pb-2 bg-white text-gray-900 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
       <label for="loan"
         class="absolute left-3 top-2 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm peer-focus:text-blue-600">Loan</label>
     </div>
 
     <div class="relative">
-      <input type="number" name="instalment" id="instalment" placeholder=" "
+      <input type="number" step="0.01" name="instalment" id="instalment" placeholder=" "
         class="peer w-full border rounded-md px-3 pt-5 pb-2 bg-white text-gray-900 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
       <label for="instalment"
         class="absolute left-3 top-2 text-sm text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm peer-focus:text-blue-600">Instalment</label>
     </div>
 
     <div class="relative">
-      <input type="number" id="instalment_no" readonly placeholder=" "
+      <input type="number" step="0.01" id="instalment_no" readonly placeholder=" "
         class="peer w-full border rounded-md px-3 pt-5 pb-2 bg-gray-100 text-gray-900 placeholder-transparent focus:outline-none" />
       <label for="instalment_no"
         class="absolute left-3 top-2 text-sm text-gray-500 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">Instalment No.</label>
     </div>
 
     <div class="relative">
-      <input type="number" id="instalment_due" readonly placeholder=" "
+      <input type="number" step="0.01" id="instalment_due" readonly placeholder=" "
         class="peer w-full border rounded-md px-3 pt-5 pb-2 bg-gray-100 text-gray-900 placeholder-transparent focus:outline-none" />
       <label for="instalment_due"
         class="absolute left-3 top-2 text-sm text-gray-500 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">Instalment Due</label>
@@ -126,9 +125,6 @@
     </button>
   </div>
 </form>
-
-
-
   <!-- Search & Summary -->
   <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
   <!-- Search Input -->
@@ -172,11 +168,9 @@
     </label>
   </div>
 </div>
-
-
   <!-- Data Table -->
   <div class="overflow-auto bg-white rounded shadow">
-    <table class="table-auto w-full text-sm">
+    <table data-member="member1" class="table-auto w-full text-sm">
       <thead class="bg-gray-200">
         <tr>
           <th>Month</th><th>Savings</th><th>Profit</th><th>Withdraw</th><th>Total</th>
@@ -189,23 +183,21 @@
   </div>
 
   <script>
-    // 📦 Replace this with your deployed Apps Script URL:
-    const BASE_URL = "https://script.google.com/macros/s/AKfycbymoDT70v9DrYb8XoFpHV0ItNwzgx92NNs6yPPE3g6Yq_yjKTWweqW1nUrukEx36mBQWg/exec";
+  const BASE_URL = "https://script.google.com/macros/s/AKfycbyTLPlC_E2C5SCArhWNLoEl_RgCcgosJzjIKKR-Y5Ln3fnLnFGMAwN6dKxfqszkUr-DTA/exec";
+const memberSelect = document.getElementById("memberSelect");
+const form = document.getElementById("entryForm");
+const table = document.getElementById("data-table");
+const search = document.getElementById("search");
+const clearSearch = document.getElementById("clearSearch");
+const lastTotalEl = document.getElementById("lastTotalDisplay");
+const lastLoanEl = document.getElementById("lastLoanDisplay");
+const lastDueEl = document.getElementById("lastInstDueDisplay");
+const total = document.getElementById("total"),
+      instalment_no = document.getElementById("instalment_no"),
+      instalment_due = document.getElementById("instalment_due");
 
-    // Helpers & DOM
-    const memberSelect = document.getElementById("memberSelect");
-    const table = document.getElementById("data-table");
-    const form = document.getElementById("entryForm");
-    const search = document.getElementById("search");
-    const clearSearch = document.getElementById("clearSearch");
-    const lastTotalEl = document.getElementById("lastTotalDisplay");
-    const lastLoanEl = document.getElementById("lastLoanDisplay");
-    const lastDueEl = document.getElementById("lastInstDueDisplay");
-
-    let isEditing = false;
-
-    function populateMemberSelect() {
-  memberSelect.innerHTML = ""; // Clear existing options
+function populateMemberSelect() {
+  memberSelect.innerHTML = "";
   for (let i = 1; i <= 40; i++) {
     const opt = document.createElement("option");
     opt.value = `member${i}`;
@@ -214,99 +206,60 @@
   }
 }
 
+function resetForm() {
+  form.reset();
+  form.action.value = "create";
+  form.savings.value = 500;
+  total.value = "0.00";
+  instalment_no.value = "0";
+  instalment_due.value = "0.00";
+}
 
-    function init() {
-      populateMemberSelect();
-      memberSelect.addEventListener("change", () => {
-        resetForm();
-        loadData();
-      });
-      form.addEventListener("submit", handleSubmit);
-      search.addEventListener("input", () => {
-        const v = search.value.toLowerCase();
-        document.querySelectorAll("#data-table tr").forEach(r => {
-          r.style.display = r.innerText.toLowerCase().includes(v) ? "" : "none";
-        });
-        clearSearch.classList.toggle("hidden", v === "");
-      });
-      clearSearch.addEventListener("click", () => {
-        search.value = "";
-        search.dispatchEvent(new Event("input"));
-      });
-      loadData();
-    }
+async function callAPI(params, method = "GET") {
+  const url = new URL(BASE_URL);
+  Object.entries(params).forEach(([k, v]) => url.searchParams.append(k, v));
+  const res = await fetch(url, { method });
+  return await res.json();
+}
 
-    async function callAPI(params, method="GET") {
-      const url = new URL(BASE_URL);
-      Object.entries(params).forEach(([k, v]) => url.searchParams.append(k, v));
-      let res = await fetch(url, { method });
-      return await res.json();
-    }
+function btn(txt, cls, fn) {
+  const b = document.createElement("button");
+  b.textContent = txt;
+  b.className = cls;
+  b.type = "button";
+  b.onclick = fn;
+  return b;
+}
 
-    function renderRow(r) {
+function renderRow(r) {
   const tr = document.createElement("tr");
   tr.className = "border-t hover:bg-yellow-100";
+  if (r.receiver === "System (Interest Share)") tr.classList.add("bg-green-100", "italic");
 
-  const intFields = ["instalment_no"]; // Add other integer-only fields here if needed
-
-  ["month","savings","profit","withdraw","total","loan","instalment","instalment_no","instalment_due","receive_date","receiver","message"].forEach(f => {
+  const fields = ["month", "savings", "profit", "withdraw", "total", "loan", "instalment", "instalment_no", "instalment_due", "receive_date", "receiver", "message"];
+  fields.forEach(f => {
     const td = document.createElement("td");
-    td.textContent =
-      f === "month"
-        ? new Date(r[f]).toLocaleString("en-US", { month: "long", year: "numeric" })
-        : f.includes("date")
-          ? new Date(r[f]).toLocaleDateString("en-GB")
-          : intFields.includes(f)
-            ? parseInt(r[f] || 0)
-            : parseFloat(r[f] || 0).toFixed(2);
+    if (f === "month") td.textContent = new Date(r[f]).toLocaleString("en-US", { month: "long", year: "numeric" });
+    else if (f.includes("date")) td.textContent = r[f] ? new Date(r[f]).toLocaleDateString("en-GB") : "";
+    else td.textContent = ["instalment_no"].includes(f) ? parseInt(r[f] || 0) : (+r[f] || 0).toFixed(2);
     tr.appendChild(td);
   });
 
   const actionTd = document.createElement("td");
-  const e = Object.assign({}, r);
-  const editBtn = btn("Edit", "text-blue-600 mr-2", ()=>startEdit(e));
-  const delBtn = btn("Delete","text-red-600", ()=>handleDelete(r.id));
-  actionTd.append(editBtn, delBtn);
+  actionTd.append(btn("Edit", "text-blue-600 mr-2", () => startEdit(r)));
+  actionTd.append(btn("Delete", "text-red-600", () => handleDelete(r.id)));
   tr.appendChild(actionTd);
 
   return tr;
 }
 
+function renderTable(data) {
+  table.innerHTML = "";
+  data.forEach(r => table.appendChild(renderRow(r)));
+  calculateSummary(data);
+}
 
-    function btn(txt, cls, fn) {
-      const b = document.createElement("button");
-      b.textContent = txt;
-      b.className = cls;
-      b.type = "button";
-      b.onclick = fn;
-      return b;
-    }
-
-    function startEdit(r) {
-      isEditing = true;
-      form.action.value = "update";
-      form.id.value = r.id;
-      const d = new Date(r.month);
-form.month.value = d.toLocaleString("en-US", { month: "long", year: "numeric" });
-      ["savings","profit","withdraw","loan","instalment"].forEach(f => form[f].value = r[f]);
-      form.receive_date.value = r.receive_date.split("T")[0];
-      form.receiver.value = r.receiver;
-      form.message.value = r.message;
-      calculateDerived();
-    }
-
-    async function handleDelete(id) {
-      await callAPI({ action:"delete", member:memberSelect.value, id });
-      resetForm(); loadData();
-    }
-
-    function resetForm() {
-      isEditing = false;
-      form.reset();
-      form.action.value = "create";
-    }
-
-    function calculateDerived() {
+function calculateDerived() {
   const s = +form.savings.value || 0;
   const p = +form.profit.value || 0;
   const w = +form.withdraw.value || 0;
@@ -314,103 +267,112 @@ form.month.value = d.toLocaleString("en-US", { month: "long", year: "numeric" })
   const I = +form.instalment.value || 0;
 
   const rows = Array.from(table.querySelectorAll("tr"));
-  const totals = rows.map(r => +r.children[4].innerText);
-  const lastTotal = totals.length ? totals[totals.length - 1] : 0;
+  const lastTotal = rows.length ? +rows[rows.length - 1].children[4].innerText : 0;
   total.value = (lastTotal + s + p - w).toFixed(2);
 
-  // Find last loan in table
   let lastLoan = 0;
   for (let i = rows.length - 1; i >= 0; i--) {
     const ln = +rows[i].children[5].innerText;
-    if (ln > 0) {
-      lastLoan = ln;
-      break;
-    }
+    if (ln > 0) { lastLoan = ln; break; }
   }
 
-  // Find max loan from table
   const maxPrevLoan = rows.reduce((max, r) => Math.max(max, +r.children[5].innerText || 0), 0);
   const isNewLoan = L > 0 && L > maxPrevLoan;
 
   let instNo = 0;
-
-if (isNewLoan) {
-  // New loan – instalments shouldn't start yet
-  instNo = 0;
-  instalment_due.value = "0.00";
-} else if (lastLoan > 0 && I > 0) {
-  // Count past instalments only if no new loan
-  let count = 0;
-  for (let r of rows) {
-    const loanVal = +r.children[5].innerText;
-    const instVal = +r.children[6].innerText;
-    if (loanVal === lastLoan && lastLoan > 0) break;
-    if (loanVal === 0 && instVal > 0) count++;
+  if (isNewLoan) {
+    instNo = 0;
+    instalment_due.value = "0.00";
+  } else if (lastLoan > 0 && I > 0) {
+    let count = 0;
+    for (let r of rows) {
+      const loanVal = +r.children[5].innerText;
+      const instVal = +r.children[6].innerText;
+      if (loanVal === lastLoan) break;
+      if (loanVal === 0 && instVal > 0) count++;
+    }
+    instNo = count + 1;
+    const due = lastLoan - instNo * I;
+    instalment_due.value = due < 0 ? "0.00" : due.toFixed(2);
   }
-  instNo = count + 1;
-  const due = lastLoan - instNo * I;
-  instalment_due.value = due < 0 ? "0.00" : due.toFixed(2);
-} else {
-  instNo = 0;
-  instalment_due.value = "0.00";
+  instalment_no.value = instNo;
 }
 
-instalment_no.value = instNo;
-
+function calculateSummary(data) {
+  if (!data?.length) return;
+  const last = data[data.length - 1];
+  lastTotalEl.value = (+last.total || 0).toFixed(2);
+  lastLoanEl.value = (+last.loan || 0).toFixed(2);
+  lastDueEl.value = (+last.instalment_due || 0).toFixed(2);
 }
 
+function startEdit(r) {
+  form.action.value = "update";
+  form.id.value = r.id;
+  form.month.value = new Date(r.month).toLocaleString("en-US", { month: "long", year: "numeric" });
+  ["savings", "profit", "withdraw", "loan", "instalment"].forEach(f => form[f].value = r[f]);
+  form.receive_date.value = r.receive_date.split("T")[0];
+  form.receiver.value = r.receiver;
+  form.message.value = r.message;
+  calculateDerived();
+}
 
+async function handleDelete(id) {
+  await callAPI({ action: "delete", member: memberSelect.value, id });
+  loadData();
+}
 
-    async function handleSubmit(e) {
-      e.preventDefault();
-      const data = {};
-      new FormData(form).forEach((v,k)=> data[k]=v);
-      data.member = memberSelect.value;
-      const result = await callAPI(data, "POST");
-      if (!result.success) return alert("Error: "+result.error);
-      alert("Saved!");
-      resetForm(); loadData();
-    }
+async function handleSubmit(e) {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(form));
+  data.member = memberSelect.value;
+  if (+data.loan > 0 && data.receiver !== "System (Interest Share)") data.profit = 0;
 
-    async function loadData() {
-      const json = await callAPI({action:"read", member: memberSelect.value});
-      table.innerHTML = "";
-      json.forEach(r => table.prepend(renderRow(r)));
-      setTimeout(calculateSummary, 50);
-    }
-
-    function calculateSummary(){
-  const rows = Array.from(table.querySelectorAll("tr")).reverse();
-  const last = rows[rows.length-1];
-  const lastTotal = last ? +last.children[4].innerText : 0;
-  lastTotalEl.value = lastTotal.toFixed(2);
-
-  const lastLoanRow = rows.reverse().find(r => +r.children[5].innerText > 0);
-  const lastLoan = lastLoanRow ? +lastLoanRow.children[5].innerText : 0;
-  lastLoanEl.value = lastLoan.toFixed(2);
-
-  const set = rows.reverse().find(r => +r.children[6].innerText > 0);
-  const inst = set ? +set.children[6].innerText : 0;
-  const instNo = set ? +set.children[7].innerText : 0;
-
-  if (lastLoan > 0 && inst > 0) {
-    lastDueEl.value = (lastLoan - inst * instNo).toFixed(2);
-  } else {
-    lastDueEl.value = "0.00";
+  const res = await callAPI(data, "POST");
+  if (res.success) {
+    resetForm();
+    await loadData();
   }
 }
 
+async function loadData() {
+  const data = await callAPI({ action: "read", member: memberSelect.value });
+  if (data?.length) renderTable(data);
+}
 
-    // Attach events
-    ["savings","profit","withdraw","loan","instalment"].forEach(f=>{
-      form[f].addEventListener("input", calculateDerived);
+// INIT
+function init() {
+  populateMemberSelect();
+  memberSelect.addEventListener("change", loadData);
+  form.addEventListener("submit", handleSubmit);
+  ["savings", "profit", "withdraw", "loan", "instalment"].forEach(f => form[f].addEventListener("input", calculateDerived));
+  form.loan.addEventListener("input", () => {
+    form.profit.disabled = +form.loan.value > 0 && form.receiver.value !== "System (Interest Share)";
+    if (form.profit.disabled) form.profit.value = "";
+  });
+  form.receiver.addEventListener("input", () => {
+    form.profit.disabled = +form.loan.value > 0 && form.receiver.value !== "System (Interest Share)";
+    if (form.profit.disabled) form.profit.value = "";
+  });
+  search.addEventListener("input", () => {
+    const v = search.value.toLowerCase();
+    Array.from(table.querySelectorAll("tr")).forEach(r => {
+      r.style.display = r.innerText.toLowerCase().includes(v) ? "" : "none";
     });
-    const total = document.getElementById("total"),
-          instalment_no = document.getElementById("instalment_no"),
-          instalment_due = document.getElementById("instalment_due");
+    clearSearch.classList.toggle("hidden", v === "");
+  });
+  clearSearch.addEventListener("click", () => {
+    search.value = "";
+    search.dispatchEvent(new Event("input"));
+  });
 
-    // Initialize
-    init();
-  </script>
+  memberSelect.value = "member1"; // Default selection
+  loadData();
+}
+
+init();
+
+</script>
+
 </body>
 </html>
