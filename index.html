@@ -17,9 +17,9 @@
 
   <form id="tx-form" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
     <!-- month,savings,profit,withdraw,total,loan,instalment,instalment_no,instalment_due,receive_date,receiver,message,id -->
-    <input type="text" name="month" placeholder="Month (e.g. June 2025)" required class="p-2 border rounded"/>
+    <input type="text" name="month" placeholder="Month (e.g. June 2025)" required pattern="^[A-Za-z]+\s+\d{4}$" class="p-2 border rounded"/>
     <input type="number" name="savings" placeholder="Savings" required class="p-2 border rounded"/>
-    <input type="number" name="profit" step="0.01" placeholder="Profit" class="p-2 border rounded"/>
+    <input type="number" name="profit" step="0.01" placeholder="Profit" readonly class="p-2 border rounded"/>
     <input type="number" name="withdraw" placeholder="Withdraw" class="p-2 border rounded"/>
     <input type="number" name="total" placeholder="Total" readonly class="p-2 border bg-gray-200"/>
     <input type="number" name="loan" placeholder="Loan" class="p-2 border rounded"/>
@@ -53,7 +53,7 @@
     const memberEl = document.getElementById('member');
     const form = document.getElementById('tx-form');
     const table = document.getElementById('tx-table');
-    const scriptURL = 'https://script.google.com/macros/s/AKfycby08E4n6xJnOL_bKh1vSgRLij0dm5DvpQBUv-hsCRykuGFvpCn2_g-zpqr5D6XQYQGQ/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzAtDRtt6FBuMIzUuY3w7luFGbaxhg41l07aVuk9op-Rr0dUjaVdIXmRSikMjF9gdSD/exec';
 
     const MEMBERS = [
       'member1','member2','member3','member4','member5',
@@ -79,7 +79,7 @@
 
     function renderTable(rows){
       table.innerHTML='';
-      rows.sort((a,b)=>new Date(a.receive_date)-new Date(b.receive_date));
+      rows.sort((a,b)=>new Date(b.receive_date)-new Date(a.receive_date));
       rows.forEach(r=>{
         const tr=document.createElement('tr');
         ['month','savings','profit','withdraw','total','loan','instalment','instalment_no','instalment_due','receive_date','receiver','message'].forEach(k=>{
@@ -136,14 +136,19 @@
       val = parseFloat(val).toFixed(2);
     }
     if (k === 'receive_date') {
-      // Convert to YYYY-MM-DD if necessary
-      const d = new Date(val);
-      if (!isNaN(d)) {
-        const offsetMs = 6 * 60 * 60 * 1000; // 6 hours in ms (GMT+6)
-        const localDate = new Date(d.getTime() + offsetMs);
-        val = localDate.toISOString().split('T')[0];
-      }
-    }
+  const d = new Date(val);
+  if (!isNaN(d)) {
+    const offsetMs = 6 * 60 * 60 * 1000; // GMT+6
+    const localDate = new Date(d.getTime() + offsetMs);
+    val = localDate.toISOString().split('T')[0];
+  }
+} else if (k === 'month') {
+  const d = new Date(val);
+  if (!isNaN(d)) {
+    val = d.toLocaleString('en-US', { month: 'long', year: 'numeric' }); // e.g., June 2025
+  }
+}
+
     form.elements[k].value = val;
   });
 
